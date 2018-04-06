@@ -4,5 +4,5 @@ This repository contains materials for the [Carnegie Mellon University Baseball 
 
 The first half of the workshop focuses on working with the `Lahman` package to learn basic `R` data exploration techniques (using the `dplyr` and `ggplot2` packages).
 
-The second half of the workshop uses PITCHf/x and Statcast data to generate a game plan for the Pirates against the Reds. This involves exploring the pitch-by-pitch data, to identify tendencies in the Reds hitters from their strengths and weaknesses against certain pitches, to where they are most likely to hit the ball.
+The second half of the workshop uses PITCHf/x and Statcast data to generate a game plan for the Pirates against the Reds. This involves exploring the pitch-by-pitch data to identify tendencies in the Reds hitters, from their strengths and weaknesses against certain pitches, to where they are most likely to hit the ball.
 

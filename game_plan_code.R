@@ -131,6 +131,7 @@ votto_pitch_summary_stats %>%
   scale_fill_brewer(palette = "Set1", guide = FALSE) +
   geom_bar(stat = "identity") + 
   labs(title = "Joey Votto Whiff Rate by Pitch Type in 2017",
+       # Must give credit to where credit is due...
        caption = "Data courtesy of MLBAM",
        x = "Pitch Type",
        y = "Whiff Rate") +
@@ -221,7 +222,7 @@ votto_data <- votto_data %>%
 # Using the pitch location, we can predict the probability of 
 # Joey Votto swinging at a pitch:
 
-swing_model_fit <- gam(swing ~ s(plate_x, plate_z), family=binomial, data = votto_data)
+swing_model_fit <- gam(swing ~ s(plate_x, plate_z), family = binomial, data = votto_data)
 
 # Find predicted probabilities over a 50 x 50 grid
 x <- seq(-1.5, 1.5, length.out=50)
@@ -239,6 +240,7 @@ ggplot(swing_predict_data) +
   geom_tile(aes(x = plate_x, y = plate_z, fill = swing_prob)) +
   scale_fill_gradient(low = "darkblue", high = "darkorange1", "Swing Probability") +
   geom_path(data = strike_zone_df, aes(x, y), lwd = 1.5, color = "white") + 
+  # coord_fixed just makes sure the axes are scaled properly in relation to each other
   coord_fixed() +
   theme_bw() + 
   labs(title = "Joey Votto's Swing Probability in 2017",
@@ -269,7 +271,6 @@ ggplot(swing_predict_data) +
        caption = "Data courtesy of MLBAM") 
 
 # What about exit velocity?
-# Swing and miss probability:
 velo_model_fit <- gam(launch_speed ~ s(plate_x, plate_z), 
                       data = filter(votto_data, type == "X"))
 
@@ -303,7 +304,7 @@ votto_data %>%
   ggplot(aes(x = hit_x, y = hit_y)) + 
   stat_density_2d(aes(fill = ..level..), geom="polygon")+
   scale_fill_gradient(low="darkblue", high="darkorange1", "Density") +
-  #geom_point(aes(x = hit_x, y = hit_y), fill = "black", color = "white", shape = 21) +
+  #geom_point(aes(x = hit_x, y = hit_y, color = events), fill = "black", shape = 21) +
   geom_segment(x=0, xend = 100, y=0, yend = 100, color = "white") +
   geom_segment(x=0, xend = -100, y=0, yend = 100, color = "white") +
   geom_curve(x = -45, xend = 45, y = 53, yend = 53, curvature = -.65, linetype = "dotted", color = "white") +

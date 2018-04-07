@@ -184,6 +184,8 @@ strike_zone_df <- data.frame(
 ggplot(votto_data, aes(x = plate_x, y = plate_z)) + 
   geom_point(alpha = 0.5) + 
   geom_path(data = strike_zone_df,aes(x, y), lwd = 1.5, color = "red") + 
+  # coord_fixed just makes sure the axes are scaled properly in relation to each other
+  coord_fixed() +
   labs(title = "Location of All Pitches Thrown Against Joey Votto in 2017 ",
        caption = "Data courtesy of MLBAM",
        x = "Horizontal Location (feet)",
@@ -198,6 +200,7 @@ votto_data %>%
   geom_point(alpha = 0.5) + 
   scale_color_brewer(palette = "Set1", "Pitch Type") + 
   geom_path(data = strike_zone_df,aes(x, y), lwd = 1.5, color = "black") + 
+  coord_fixed() +
   labs(title = "Location of Pitches Thrown Against Joey Votto in 2017 by Pitch Type",
        caption = "Data courtesy of MLBAM",
        x = "Horizontal Location (feet)",
@@ -240,7 +243,6 @@ ggplot(swing_predict_data) +
   geom_tile(aes(x = plate_x, y = plate_z, fill = swing_prob)) +
   scale_fill_gradient(low = "darkblue", high = "darkorange1", "Swing Probability") +
   geom_path(data = strike_zone_df, aes(x, y), lwd = 1.5, color = "white") + 
-  # coord_fixed just makes sure the axes are scaled properly in relation to each other
   coord_fixed() +
   theme_bw() + 
   labs(title = "Joey Votto's Swing Probability in 2017",
@@ -260,7 +262,8 @@ swing_predict_data <- swing_predict_data %>%
 
 ggplot(swing_predict_data) +
   geom_tile(aes(x = plate_x, y = plate_z, fill = miss_prob)) +
-  scale_fill_gradient(low = "darkblue", high = "darkorange1", "Whiff Probability") +
+  scale_fill_gradient(low = "darkblue", high = "darkorange1", "Whiff Probability",
+                      limit = c(0,1)) +
   geom_path(data = strike_zone_df, aes(x, y), lwd = 1.5, color = "white") + 
   coord_fixed() +
   theme_bw() + 
@@ -269,6 +272,35 @@ ggplot(swing_predict_data) +
        x = "Horizontal Location (feet)",
        y = "Vertical Location (feet)",
        caption = "Data courtesy of MLBAM") 
+
+# How does the count factor in? (Could also use the unite function in the tidyr package)
+votto_data <- votto_data %>%
+  mutate(count = paste(as.character(balls), "-", as.character(strikes)))
+
+# Swing and miss probability with two strikes
+miss_model_fit_two_strikes <- gam(miss ~ s(plate_x, plate_z), family=binomial, 
+                      data = filter(votto_data, swing == 1, 
+                                    count %in% c( "0 - 2", "1 - 2", "2 - 2", "3 - 2")))
+
+# Get the predicted values from the model and convert to probability values:
+miss_model_preds_two_strikes <- predict(miss_model_fit_two_strikes, swing_predict_data)
+swing_predict_data <- swing_predict_data %>%
+  mutate(miss_prob_two_strikes = exp(miss_model_preds_two_strikes) / (1 + exp(miss_model_preds_two_strikes)))
+
+ggplot(swing_predict_data) +
+  geom_tile(aes(x = plate_x, y = plate_z, fill = miss_prob_two_strikes)) +
+  scale_fill_gradient(low = "darkblue", high = "darkorange1", "Whiff Probability",
+                      limit = c(0,1)) +
+  geom_path(data = strike_zone_df, aes(x, y), lwd = 1.5, color = "white") + 
+  coord_fixed() +
+  theme_bw() + 
+  labs(title = "Joey Votto's Whiff Probability in 2017 with Two Strikes",
+       subtitle = "From the Catcher's POV: Against RHP & LHP",
+       x = "Horizontal Location (feet)",
+       y = "Vertical Location (feet)",
+       caption = "Data courtesy of MLBAM") 
+
+# Votto's whiff probability is down on two strikes!
 
 # What about exit velocity?
 velo_model_fit <- gam(launch_speed ~ s(plate_x, plate_z), 
@@ -309,6 +341,8 @@ votto_data %>%
   geom_segment(x=0, xend = -100, y=0, yend = 100, color = "white") +
   geom_curve(x = -45, xend = 45, y = 53, yend = 53, curvature = -.65, linetype = "dotted", color = "white") +
   theme_bw() + 
+  labs(title = "Spray Chart of Joey Votto's Batted Balls in 2017",
+       caption = "Data courtesy of MLBAM") +
   theme(axis.line = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),

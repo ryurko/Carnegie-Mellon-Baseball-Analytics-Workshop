@@ -241,7 +241,8 @@ swing_predict_data <- swing_predict_data %>%
 # Now plot Votto's predicted probabilities of swinging with the strike zone:
 ggplot(swing_predict_data) +
   geom_tile(aes(x = plate_x, y = plate_z, fill = swing_prob)) +
-  scale_fill_gradient(low = "darkblue", high = "darkorange1", "Swing Probability") +
+  scale_fill_gradient(low = "darkblue", high = "darkorange1", "Swing Probability",
+                      limit = c(0,1)) +
   geom_path(data = strike_zone_df, aes(x, y), lwd = 1.5, color = "white") + 
   coord_fixed() +
   theme_bw() + 
